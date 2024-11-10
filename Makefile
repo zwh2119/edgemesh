@@ -25,7 +25,7 @@ BINARIES=edgemesh-agent \
 
 # the env PLATFORMS defines to generate linux images for amd 64-bit, arm 64-bit and armv7 architectures
 # the full list of PLATFORMS is linux/amd64,linux/arm64,linux/arm/v7
-PLATFORMS ?= linux/amd64,linux/arm64,linux/arm/v7
+PLATFORMS ?= linux/amd64,linux/arm64
 COMPONENTS=agent \
            gateway
 
