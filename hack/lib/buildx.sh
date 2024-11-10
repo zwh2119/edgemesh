@@ -85,7 +85,8 @@ edgemesh::buildx::build-multi-platform-images() {
         --platform ${arch} \
         --build-arg REG="${REGISTRY}" \
         -t ${tag_name} \
-        -f ${temp_dockerfile} .
+        -f ${temp_dockerfile} . \
+        --push
       done
   done
 
