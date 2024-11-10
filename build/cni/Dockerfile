@@ -1,4 +1,5 @@
-FROM golang:1.19 AS builder
+ARG REG=docker.io
+FROM $REG/golang:1.19 AS builder
 
 ARG GO_LDFLAGS
 ARG TARGETARCH
@@ -8,8 +9,8 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH GO_LDFLAGS=$GO_LDFLAGS make WHAT=edgemesh-cni
 
-
-FROM alpine:3.11
+ARG REG=docker.io
+FROM $REG/alpine:3.11
 
 RUN apk update && apk --no-cache add iptables && apk --no-cache add dpkg
 
