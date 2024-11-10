@@ -13,7 +13,7 @@
 # limitations under the License.
 
 GOPATH?=$(shell go env GOPATH)
-IMAGE_REPO ?= repo:5000/kubeedge
+IMAGE_REPO ?= 114.212.87.136:5000/kubeedge
 ARCH ?= amd64
 IMAGE_TAG ?= v1.17.0-nobalance
 GO_LDFLAGS='$(shell hack/make-rules/version.sh)'
