@@ -14,6 +14,10 @@ data:
         enable: true
       edgeTunnel:
         enable: true
+        relayNodes:
+        - nodeName: cloud.kubeedge
+          advertiseAddress:
+          - 114.212.81.11
         #relayNodes:
         #- nodeName: <your relay node name1>
         #  advertiseAddress:
