@@ -23,4 +23,4 @@ set -o pipefail
 EDGEMESH_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 source "${EDGEMESH_ROOT}/hack/lib/init.sh"
 
-edgemesh::buildx::build-multi-platform-images
+edgemesh::buildx::push-multi-platform-images
