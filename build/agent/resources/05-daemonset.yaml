@@ -23,7 +23,7 @@ spec:
         securityContext:
           privileged: true
         image: repo:5000/kubeedge/edgemesh-agent:v1.17.0-nobalance
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
         - name: NODE_NAME
           valueFrom:

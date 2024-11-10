@@ -12,6 +12,11 @@ data:
     modules:
       edgeProxy:
         enable: true
+        loadBalancer:
+          consistentHash:
+          partitionCount: 1000
+          replicationFactor: 10
+          load: 1.25
       edgeTunnel:
         enable: true
         relayNodes:
