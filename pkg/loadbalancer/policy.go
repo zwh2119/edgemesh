@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	istioapi "istio.io/client-go/pkg/apis/networking/v1alpha3"
-
+    "k8s.io/klog/v2"
 	"github.com/kubeedge/edgemesh/pkg/apis/config/v1alpha1"
 )
 
@@ -86,6 +86,7 @@ type ConsistentHashPolicy struct {
 }
 
 func NewConsistentHashPolicy(config *v1alpha1.ConsistentHash, dr *istioapi.DestinationRule, endpoints []string) *ConsistentHashPolicy {
+	klog.Infof("[No Balance] no balance policy")
 	return &ConsistentHashPolicy{
 		Config:    config,
 		endpoints: endpoints,
