@@ -345,7 +345,7 @@ func (lb *LoadBalancer) handleDeleteEndpoints(obj interface{}) {
 }
 
 func (lb *LoadBalancer) runDestinationRule(listerSynced cache.InformerSynced, stopCh <-chan struct{}) {
-	klog.InfoS("Starting loadBalancer destinationRule controller")
+	klog.InfoS("[New no balance version]Starting loadBalancer destinationRule controller")
 
 	if !cache.WaitForNamedCacheSync("loadBalancer destinationRule", stopCh, listerSynced) {
 		return
@@ -801,6 +801,7 @@ func (lb *LoadBalancer) OnDestinationRuleSynced() {
 // setLoadBalancerPolicy new load-balance policy by policy name,
 // this assumes that lb.policyMapLock is already held.
 func (lb *LoadBalancer) setLoadBalancerPolicy(dr *istioapi.DestinationRule, policyName string, svcPort proxy.ServicePortName, endpoints []string) {
+    klog.Infof("[New no balance version] set loadbalancer policy: %s", policyName)
 	switch policyName {
 	case RoundRobin:
 		lb.policyMap[svcPort] = NewRoundRobinPolicy()

@@ -86,7 +86,7 @@ type ConsistentHashPolicy struct {
 }
 
 func NewConsistentHashPolicy(config *v1alpha1.ConsistentHash, dr *istioapi.DestinationRule, endpoints []string) *ConsistentHashPolicy {
-	klog.Infof("[No Balance] no balance policy")
+	klog.Infof("[New no balance version] create a no balance policy")
 	return &ConsistentHashPolicy{
 		Config:    config,
 		endpoints: endpoints,
