@@ -1,16 +1,13 @@
 package loadbalancer
 
 import (
-	"bufio"
 	"fmt"
 	"math/rand"
 	"net"
 	"net/http"
 	"sync"
 
-	"github.com/buraksezer/consistent"
 	istioapi "istio.io/client-go/pkg/apis/networking/v1alpha3"
-	"k8s.io/klog/v2"
 
 	"github.com/kubeedge/edgemesh/pkg/apis/config/v1alpha1"
 )
