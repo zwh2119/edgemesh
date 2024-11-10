@@ -1,4 +1,5 @@
-FROM golang:1.19 AS builder
+ARG REG=docker.io
+FROM $REG/golang:1.19 AS builder
 
 ARG GO_LDFLAGS
 ARG TARGETARCH
