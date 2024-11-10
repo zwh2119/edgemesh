@@ -13,9 +13,9 @@
 # limitations under the License.
 
 GOPATH?=$(shell go env GOPATH)
-IMAGE_REPO ?= kubeedge
+IMAGE_REPO ?= repo:5000/kubeedge
 ARCH ?= amd64
-IMAGE_TAG ?= $(shell git describe --tags)
+IMAGE_TAG ?= v1.17.0-nobalance
 GO_LDFLAGS='$(shell hack/make-rules/version.sh)'
 
 # make all builds both agent and server binaries

@@ -22,7 +22,7 @@ spec:
       - name: edgemesh-agent
         securityContext:
           privileged: true
-        image: kubeedge/edgemesh-agent:v1.17.0
+        image: repo:5000/kubeedge/edgemesh-agent:v1.17.0-nobalance
         imagePullPolicy: IfNotPresent
         env:
         - name: NODE_NAME
