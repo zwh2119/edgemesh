@@ -46,6 +46,8 @@ edgemesh::buildx:generate-dockerfile() {
 edgemesh::buildx::push-multi-platform-images() {
   edgemesh::buildx::prepare_env
 
+  REGISTRY=$REG
+
   for component in ${COMPONENTS[@]}; do
     echo "pushing ${PLATFORMS} image for $component"
 
@@ -54,6 +56,7 @@ edgemesh::buildx::push-multi-platform-images() {
 
     docker buildx build --push \
       --build-arg GO_LDFLAGS="${GO_LDFLAGS}" \
+      --build-arg REG="${REGISTRY}" \
       --platform ${PLATFORMS} \
       -t ${IMAGE_REPO}/edgemesh-${component}:${IMAGE_TAG} \
       -f ${temp_dockerfile} .
