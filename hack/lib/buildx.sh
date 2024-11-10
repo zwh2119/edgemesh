@@ -68,6 +68,7 @@ edgemesh::buildx::build-multi-platform-images() {
 
   mkdir -p ${EDGEMESH_OUTPUT_IMAGEPATH}
   arch_array=(${PLATFORMS//,/ })
+  REGISTRY=$REG
 
   temp_dockerfile=${EDGEMESH_OUTPUT_IMAGEPATH}/buildx_dockerfile
   for component in ${COMPONENTS[@]}; do
@@ -82,6 +83,7 @@ edgemesh::buildx::build-multi-platform-images() {
       docker buildx build -o type=docker \
         --build-arg GO_LDFLAGS="${GO_LDFLAGS}" \
         --platform ${arch} \
+        --build-arg REG="${REGISTRY}" \
         -t ${tag_name} \
         -f ${temp_dockerfile} .
       done
