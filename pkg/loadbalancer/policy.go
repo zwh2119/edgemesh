@@ -82,17 +82,17 @@ func (rd *RandomPolicy) Sync(_ []string) {}
 func (rd *RandomPolicy) Release() {}
 
 type ConsistentHashPolicy struct {
-	Config   *v1alpha1.ConsistentHash
-	lock     sync.Mutex
-	hashRing *consistent.Consistent
-	hashKey  HashKey
+	Config     *v1alpha1.ConsistentHash
+	lock       sync.Mutex
+	endpoints  []string          // Store the list of endpoints
+	hashKey    HashKey           // Hash key for selecting the target node
 }
 
 func NewConsistentHashPolicy(config *v1alpha1.ConsistentHash, dr *istioapi.DestinationRule, endpoints []string) *ConsistentHashPolicy {
 	return &ConsistentHashPolicy{
-		Config:   config,
-		hashRing: newHashRing(config, endpoints),
-		hashKey:  getConsistentHashKey(dr),
+		Config:    config,
+		endpoints: endpoints,
+		hashKey:   getConsistentHashKey(dr),
 	}
 }
 
@@ -109,50 +109,45 @@ func (ch *ConsistentHashPolicy) Update(_, dr *istioapi.DestinationRule) {
 func (ch *ConsistentHashPolicy) Pick(_ []string, srcAddr net.Addr, netConn net.Conn, cliReq *http.Request) (endpoint string, req *http.Request, err error) {
 	ch.lock.Lock()
 	defer ch.lock.Unlock()
-
 	req = cliReq
-	var keyValue string
-	switch ch.hashKey.Type {
-	case HTTPHeader:
-		if req == nil {
-			req, err = http.ReadRequest(bufio.NewReader(netConn))
-			if err != nil {
-				klog.Errorf("read http request err: %v", err)
-				return "", nil, err
-			}
-		}
-		keyValue = req.Header.Get(ch.hashKey.Key)
-	case UserSourceIP:
-		if srcAddr == nil && netConn != nil {
-			srcAddr = netConn.RemoteAddr()
-		}
-		keyValue = srcAddr.String()
-	default:
-		klog.Errorf("Failed to get hash key value")
-		keyValue = ""
+
+	// Extract the target IP from the request's destination address
+	var targetIP string
+	if req != nil && req.URL != nil {
+		// Extract IP address from request's Host or URL
+		targetIP = req.URL.Hostname() // Extract the hostname part as the target IP
+	} else if netConn != nil {
+		// Fall back to extracting IP from the network connection if available
+		targetIP, _, _ = net.SplitHostPort(netConn.RemoteAddr().String())
 	}
-	klog.Infof("Get key value: %s", keyValue)
-	member := ch.hashRing.LocateKey([]byte(keyValue))
-	if member == nil {
-		errMsg := fmt.Errorf("can't find a endpoint by given key: %s", keyValue)
-		klog.Errorf("%v", errMsg)
-		return "", req, errMsg
+
+	if targetIP == "" {
+		return "", req, fmt.Errorf("unable to determine target IP from request")
 	}
-	return member.String(), req, nil
+
+	// Match the target IP with endpoints to locate the correct node
+	for _, endpoint := range ch.endpoints {
+		endpointIP, _, err := net.SplitHostPort(endpoint)
+		if err != nil {
+			continue // Skip invalid endpoint formats
+		}
+		if endpointIP == targetIP {
+			return endpoint, req, nil // Return the matched endpoint directly
+		}
+	}
+
+	// If no matching endpoint is found, return an error
+	return "", req, fmt.Errorf("no matching node found for target IP: %s", targetIP)
 }
 
 func (ch *ConsistentHashPolicy) Sync(endpoints []string) {
 	ch.lock.Lock()
-	if ch.hashRing == nil {
-		ch.hashRing = newHashRing(ch.Config, endpoints)
-	} else {
-		updateHashRing(ch.hashRing, endpoints)
-	}
+	ch.endpoints = endpoints
 	ch.lock.Unlock()
 }
 
 func (ch *ConsistentHashPolicy) Release() {
 	ch.lock.Lock()
-	clearHashRing(ch.hashRing)
+	ch.endpoints = nil // Clear the endpoint list
 	ch.lock.Unlock()
 }
