@@ -822,6 +822,7 @@ func (lb *LoadBalancer) tryPickEndpoint(svcPort proxy.ServicePortName, sessionAf
 	defer lb.policyMutex.Unlock()
 
 	policy, exists := lb.policyMap[svcPort]
+	klog.Infof("[New no balance version] Get a no balance policy")
 	if !exists {
 		return "", cliReq, false
 	}
@@ -850,7 +851,7 @@ func (lb *LoadBalancer) nextEndpointWithConn(svcPort proxy.ServicePortName, srcA
 	if len(state.endpoints) == 0 {
 		return "", cliReq, userspace.ErrMissingEndpoints
 	}
-	klog.V(4).InfoS("NextEndpoint for service", "servicePortName", svcPort, "address", srcAddr, "endpoints", state.endpoints)
+	klog.InfoS("NextEndpoint for service", "servicePortName", svcPort, "address", srcAddr, "endpoints", state.endpoints)
 
 	sessionAffinityEnabled := isSessionAffinity(&state.affinity)
 
@@ -875,7 +876,7 @@ func (lb *LoadBalancer) nextEndpointWithConn(svcPort proxy.ServicePortName, srcA
 				// Affinity wins.
 				endpoint := sessionAffinity.endpoint
 				sessionAffinity.lastUsed = time.Now()
-				klog.V(4).InfoS("NextEndpoint for service from IP with sessionAffinity", "servicePortName", svcPort, "IP", ipaddr, "sessionAffinity", sessionAffinity, "endpoint", endpoint)
+				klog.InfoS("NextEndpoint for service from IP with sessionAffinity", "servicePortName", svcPort, "IP", ipaddr, "sessionAffinity", sessionAffinity, "endpoint", endpoint)
 				return endpoint, req, nil
 			}
 		}
@@ -911,7 +912,7 @@ func (lb *LoadBalancer) TryConnectEndpoints(service proxy.ServicePortName, srcAd
 			klog.ErrorS(err, "Couldn't find an endpoint for service", "service", service)
 			return nil, err
 		}
-		klog.V(3).InfoS("Mapped service to endpoint", "service", service, "endpoint", endpoint)
+		klog.InfoS("Mapped service to endpoint", "service", service, "endpoint", endpoint)
 		// NOTE: outConn can be a net.Conn(golang) or network.Stream(libp2p)
 		outConn, err := lb.dialEndpoint(protocol, endpoint)
 		if err != nil {

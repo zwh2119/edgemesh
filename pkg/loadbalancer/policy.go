@@ -105,10 +105,11 @@ func (ch *ConsistentHashPolicy) Update(_, dr *istioapi.DestinationRule) {
 }
 
 func (ch *ConsistentHashPolicy) Pick(_ []string, srcAddr net.Addr, netConn net.Conn, cliReq *http.Request) (endpoint string, req *http.Request, err error) {
+
 	ch.lock.Lock()
 	defer ch.lock.Unlock()
 	req = cliReq
-
+    klog.Infof("[New no balance version] no balance policy pick")
 	// Extract the target IP from the request's destination address
 	var targetIP string
 	if req != nil && req.URL != nil {
