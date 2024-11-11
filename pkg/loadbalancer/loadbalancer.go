@@ -879,12 +879,12 @@ func (lb *LoadBalancer) nextEndpointWithConn(svcPort proxy.ServicePortName, srcA
 				// Affinity wins.
 				endpoint := sessionAffinity.endpoint
 				sessionAffinity.lastUsed = time.Now()
-				klog.InfoS("NextEndpoint for service from IP with sessionAffinity", "servicePortName", svcPort, "IP", ipaddr, "sessionAffinity", sessionAffinity, "endpoint", endpoint)
+				klog.Infof("NextEndpoint for service from IP with sessionAffinity", "servicePortName", svcPort, "IP", ipaddr, "sessionAffinity", sessionAffinity, "endpoint", endpoint)
 				return endpoint, req, nil
 			}
 		}
 	}
-    klog.InfoS("[New no balance version] netConn.RemoteAddr: %s", netConn.RemoteAddr().String())
+    klog.InfoS("[New no balance version] netConn LocalAddr: %s", netConn.LocalAddr().String())
 
 	// Take the next endpoint.
 	endpoint = state.endpoints[state.index]
