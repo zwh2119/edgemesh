@@ -858,12 +858,15 @@ func (lb *LoadBalancer) nextEndpointWithConn(svcPort proxy.ServicePortName, srcA
 
 	sessionAffinityEnabled := isSessionAffinity(&state.affinity)
 
+	klog.Infof("Ready for pick endpoint..")
+
 	// Note: because loadBalance strategy may have read http.Request from inConn,
 	// so here we need to return it to outConn!
 	endpoint, req, picked := lb.tryPickEndpoint(svcPort, sessionAffinityEnabled, state.endpoints, srcAddr, netConn, cliReq)
 	if picked {
 		return endpoint, req, nil
 	}
+    klog.Infof("policy not pick endpoint, continue..")
 
 	var ipaddr string
 	if sessionAffinityEnabled {
