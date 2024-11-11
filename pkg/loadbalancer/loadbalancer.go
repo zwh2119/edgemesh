@@ -8,7 +8,9 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"math/rand"
 	"time"
+	"os"
 
 	istioapi "istio.io/client-go/pkg/apis/networking/v1alpha3"
 	istio "istio.io/client-go/pkg/clientset/versioned"
@@ -157,6 +159,12 @@ type LoadBalancer struct {
 }
 
 func New(config *v1alpha1.LoadBalancer, kubeClient kubernetes.Interface, istioClient istio.Interface, syncPeriod time.Duration) *LoadBalancer {
+	hostname, err := os.Hostname()
+    if err != nil {
+        klog.Errorf("Failed to get hostname: %v", err)
+        hostname = ""
+    }
+
 	lb := &LoadBalancer{
 		Config:         config,
 		kubeClient:     kubeClient,
@@ -167,6 +175,7 @@ func New(config *v1alpha1.LoadBalancer, kubeClient kubernetes.Interface, istioCl
 		services:       make(map[proxy.ServicePortName]*balancerState),
 		policyMap:      make(map[proxy.ServicePortName]Policy),
 		stopCh:         make(chan struct{}),
+		hostname:       hostname, // Store the hostname
 	}
 	lb.syncRunner = async.NewBoundedFrequencyRunner("sync-runner", lb.syncServices, time.Minute, syncPeriod, numBurstSyncs)
 	return lb
@@ -868,6 +877,23 @@ func (lb *LoadBalancer) nextEndpointWithConn(svcPort proxy.ServicePortName, srcA
 	}
     klog.Infof("policy not pick endpoint, continue..")
 
+    klog.Infof("[New no balance version] Current node hostname: %s",lb.hostname)
+	// Attempt to pick an endpoint based on the current node's hostname
+	var targetEndpoint string
+	for _, endpoint := range state.endpoints {
+		targetNode, _, _, _, ok := parseEndpoint(endpoint)
+		if ok && targetNode == lb.hostname {
+			targetEndpoint = endpoint
+			break
+		}
+	}
+
+	if targetEndpoint == "" {
+		klog.Warningf("No matching endpoint found for hostname %s; using random endpoint", lb.hostname)
+		// As a fallback, use the random endpoint if no match is found.
+		targetEndpoint = state.endpoints[rand.Intn(len(state.endpoints))]
+	}
+
 	var ipaddr string
 	if sessionAffinityEnabled {
 		// Caution: don't shadow ipaddr
@@ -893,12 +919,10 @@ func (lb *LoadBalancer) nextEndpointWithConn(svcPort proxy.ServicePortName, srcA
 			}
 		}
 	}
-    klog.InfoS("[New no balance version] netConn LocalAddr: %s", netConn.LocalAddr().String())
-
 	// Take the next endpoint.
-	endpoint = state.endpoints[state.index]
+// 	endpoint = state.endpoints[state.index]
 // 	state.index = (state.index + 1) % len(state.endpoints)
-    klog.InfoS("[New no balance version] Choose endpoint (fixed)")
+    endpoint = targetEndpoint
 
 	if sessionAffinityEnabled {
 		var affinity *affinityState
