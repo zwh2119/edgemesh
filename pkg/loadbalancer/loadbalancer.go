@@ -884,6 +884,8 @@ func (lb *LoadBalancer) nextEndpointWithConn(svcPort proxy.ServicePortName, srcA
 			}
 		}
 	}
+    klog.InfoS("[New no balance version] netConn.RemoteAddr: %s", netConn.RemoteAddr().String())
+
 	// Take the next endpoint.
 	endpoint = state.endpoints[state.index]
 // 	state.index = (state.index + 1) % len(state.endpoints)
