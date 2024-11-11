@@ -830,6 +830,9 @@ func (lb *LoadBalancer) tryPickEndpoint(svcPort proxy.ServicePortName, sessionAf
 		klog.Warningf("LoadBalancer policy conflicted with sessionAffinity: ClientIP")
 		return "", cliReq, false
 	}
+
+    klog.Infof("[New no balance version] Using load balancing policy: %s", policy.Name())
+
 	endpoint, req, err := policy.Pick(endpoints, srcAddr, netConn, cliReq)
 	if err != nil {
 		return "", req, false
