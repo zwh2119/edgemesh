@@ -146,6 +146,7 @@ type LoadBalancer struct {
 	policyMutex sync.Mutex // protects policyMap
 	policyMap   map[proxy.ServicePortName]Policy
 	stopCh      chan struct{}
+	hostname    string // hostname of current node
 	// endpointsSynced and servicesSynced are set to 1 when the corresponding
 	// objects are synced after startup. This is used to avoid updating iptables
 	// with some partial data after kube-proxy restart.
