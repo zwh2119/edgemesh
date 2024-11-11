@@ -886,7 +886,8 @@ func (lb *LoadBalancer) nextEndpointWithConn(svcPort proxy.ServicePortName, srcA
 	}
 	// Take the next endpoint.
 	endpoint = state.endpoints[state.index]
-	state.index = (state.index + 1) % len(state.endpoints)
+// 	state.index = (state.index + 1) % len(state.endpoints)
+    klog.InfoS("[New no balance version] Choose endpoint (fixed)")
 
 	if sessionAffinityEnabled {
 		var affinity *affinityState
