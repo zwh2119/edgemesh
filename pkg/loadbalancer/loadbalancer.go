@@ -872,15 +872,21 @@ func (lb *LoadBalancer) nextEndpointWithConn(svcPort proxy.ServicePortName, srcA
 	if sessionAffinityEnabled {
 		// Caution: don't shadow ipaddr
 		var err error
+		klog.Infof("Enter [sessionAffinityEnabled]")
 		ipaddr, _, err = net.SplitHostPort(srcAddr.String())
 		if err != nil {
 			return "", req, fmt.Errorf("malformed source address %q: %v", srcAddr.String(), err)
 		}
+        klog.Infof("get ipaddr")
 		if !sessionAffinityReset {
+		    klog.Infof("Enter [not sessionAffinityEnabled]")
 			sessionAffinity, exists := state.affinity.affinityMap[ipaddr]
+			klog.Infof("get sessionAffinity")
 			if exists && int(time.Since(sessionAffinity.lastUsed).Seconds()) < state.affinity.ttlSeconds {
 				// Affinity wins.
+				klog.Infof("Enter [sessionAffinityEnabled timezone]")
 				endpoint := sessionAffinity.endpoint
+				klog.Infof("get endpoint")
 				sessionAffinity.lastUsed = time.Now()
 				klog.Infof("NextEndpoint for service from IP with sessionAffinity", "servicePortName", svcPort, "IP", ipaddr, "sessionAffinity", sessionAffinity, "endpoint", endpoint)
 				return endpoint, req, nil
